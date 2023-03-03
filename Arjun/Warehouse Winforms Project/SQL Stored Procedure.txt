@@ -1,0 +1,85 @@
+===================================================
+UPDATE DATA:
+===================================================
+
+
+
+-- ==========================
+
+-- Author:  Arjun Sagar
+-- Create date: 02/02/2023
+-- Description:	Updating the stock details
+-- ===========================
+CREATE PROCEDURE [dbo].[uspUpdateProductData]
+	@Available int,
+	@DPCI varchar(50)
+	
+
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	UPDATE T_Stock SET Available = @Available WHERE DPCI = @DPCI
+	
+
+	END
+--------------------------------------------------------------------------------------------------
+
+
+
+===================================================
+RETRIEVE DATA:
+===================================================
+
+USE [Warehouse]
+GO
+/****** Object:  StoredProcedure [dbo].[uspGetProductList]    Script Date: 2/3/2023 12:54:57 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:	Arjun Sagar
+-- Create date: 01/29/2023
+-- Description:	Randomly picks a list of items from the inventory
+-- =============================================
+ALTER PROCEDURE [dbo].[uspGetProductList] 
+	-- Add the parameters for the stored procedure here
+	--<@Param1, sysname, @p1> <Datatype_For_Param1, , int> = <Default_Value_For_Param1, , 0>, 
+	--<@Param2, sysname, @p2> <Datatype_For_Param2, , int> = <Default_Value_For_Param2, , 0>
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	select TOP 50 PERCENT  
+	p.ProductName,
+	s.Dpci,
+	s.Price,
+	l.Location,
+	--[Aisle] = substring(Location,1,1),
+	--[Shelf] = substring(Location,2,1),
+	--a.AisleId,
+	ln.Coordinates,
+	s.Available
+	
+from T_Stock s 
+join T_Products p on p.ProductId = s.ProductId
+join T_Location l on l.ProductId = p.ProductId 
+join T_Aisle a on a.AisleId = l.AisleId
+join T_Shelf sh on sh.ShelfId = l.ShelfId
+join T_Layout_New ln on ln.CoordinateId = l.CoordinateId
+--join T_Shelf sh on sh.ShelfId = ln.ShelfId
+
+ORDER BY NEWID()
+END
+
+-------------------------------------------------------------------------------------------------------
+
+
